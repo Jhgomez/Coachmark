@@ -78,7 +78,7 @@ android {
 
 
 mavenPublishing {
-    publishToMavenCentral()
+    publishToMavenCentral(automaticRelease = true)
     signAllPublications()
 
     coordinates("io.github.jhgomez", "coachmark", "1.0")
