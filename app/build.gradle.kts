@@ -44,7 +44,8 @@ android {
 }
 
 dependencies {
-    implementation("okik.tech.coachmark:coachmark:1.0")
+    implementation("io.github.jhgomez:coachmark:1.0")
+//    implementation(project(":coachmark"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
