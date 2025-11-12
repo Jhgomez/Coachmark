@@ -105,7 +105,7 @@ public final class FocusDialog {
     }
 
     public interface DialogConstraintsCommand {
-        void execute(DialogWrapperLayout constraintLayout, View focusView, View dialog);
+        void execute(CoachMarkOverlay constraintLayout, View focusView, View dialog);
     }
 
 }

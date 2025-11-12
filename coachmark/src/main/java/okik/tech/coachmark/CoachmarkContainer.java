@@ -1,35 +1,31 @@
 package okik.tech.coachmark;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.RecordingCanvas;
 import android.graphics.RenderNode;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.graphics.ColorUtils;
 
-public class TutorialDisplayLayout extends FrameLayout {
+public class CoachmarkContainer extends FrameLayout {
     @Nullable
-    public DialogWrapperLayout dialogWrapperLayout = null;
+    public CoachMarkOverlay dialogWrapperLayout = null;
     @Nullable
     private final RenderNode contentCopy;
     @Nullable
     private PopupWindow popup = null;
 
-    public TutorialDisplayLayout(Context context) {
+    public CoachmarkContainer(Context context) {
         this(context, null);
     }
 
-    public TutorialDisplayLayout(Context context, @Nullable AttributeSet attrs) {
+    public CoachmarkContainer(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             contentCopy = new RenderNode("ContentCopy");
@@ -48,7 +44,7 @@ public class TutorialDisplayLayout extends FrameLayout {
         location[0] -= selfLocation[0];
         location[1] -= selfLocation[1];
 
-        dialogWrapperLayout = new DialogWrapperLayout(getContext());
+        dialogWrapperLayout = new CoachMarkOverlay(getContext());
 
         int possibleWidth = getResources().getDisplayMetrics().widthPixels - selfLocation[0];
         int possibleHeight = getResources().getDisplayMetrics().heightPixels - selfLocation[1];

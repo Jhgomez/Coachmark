@@ -26,7 +26,7 @@ import androidx.core.graphics.ColorUtils;
  * affecting the foreground content by drawing an effect-holding view behind it.
  */
 
-public class DialogWrapperLayout extends ConstraintLayout {
+public class CoachMarkOverlay extends ConstraintLayout {
     public FocusArea focusArea = null;
     int[] emphasisViewLoc;
     private RenderNode contentCopy = null;
@@ -45,11 +45,11 @@ public class DialogWrapperLayout extends ConstraintLayout {
         }
     }
 
-    public DialogWrapperLayout(Context context) {
+    public CoachMarkOverlay(Context context) {
         this(context, null);
     }
 
-    public DialogWrapperLayout(Context context, @Nullable AttributeSet attrs) {
+    public CoachMarkOverlay(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -60,13 +60,13 @@ public class DialogWrapperLayout extends ConstraintLayout {
         addView(focusSurrounding);
     }
 
-    private void configureSurroundingFocusAreaView(FocusArea fa, @Nullable RenderNode renderNode) {
-        float referenceViewWidth =
+    private void configureFocusAreaViewSurrounding(FocusArea fa, @Nullable RenderNode renderNode) {
+        float focusViewWidth =
                 fa.getView().getWidth()
                         + fa.getSurroundingThickness().getStart()
                         + fa.getSurroundingThickness().getEnd();
 
-        float referenceViewHeight =
+        float focusViewHeight =
                 fa.getView().getHeight()
                         + fa.getSurroundingThickness().getTop()
                         + fa.getSurroundingThickness().getBottom();
@@ -96,23 +96,22 @@ public class DialogWrapperLayout extends ConstraintLayout {
                 (ConstraintLayout.LayoutParams) focusSurrounding.getLayoutParams();
 
         if (isDrawnB4Start) {
-            // marginEnd = (-referenceViewWidth - focusViewXLoc)
-//            params.setMarginEnd((int) (-referenceViewWidth - focusViewXLoc));
+            params.setMarginEnd((int) (-focusViewWidth - focusViewXLoc));
         } else {
             // marginStart = focusViewXLoc
             params.setMarginStart((int) (focusViewXLoc));
         }
 
         if (isDrawnB4Top) {
-            // bottomMargin = (-referenceViewHeight - focusViewYLoc)
-//            params.bottomMargin = (int) (-referenceViewHeight - focusViewYLoc);
+//             bottomMargin = (-referenceViewHeight - focusViewYLoc)
+            params.bottomMargin = (int) (-focusViewHeight - focusViewYLoc);
         } else {
             // topMargin = focusViewYLoc
             params.topMargin = (int) (focusViewYLoc);
         }
 
-        params.width = (int) (referenceViewWidth);
-        params.height = (int) (referenceViewHeight);
+        params.width = (int) (focusViewWidth);
+        params.height = (int) (focusViewHeight);
 //        focusSurrounding.setLayoutParams(params);
 
         BackgroundSettings backgroundSettings = fa.generateBackgroundSettings();
@@ -178,7 +177,7 @@ public class DialogWrapperLayout extends ConstraintLayout {
             addView(fd.getDialogView());
         }
 
-        configureSurroundingFocusAreaView(fa, renderNode);
+        configureFocusAreaViewSurrounding(fa, renderNode);
 
         final ViewTreeObserver.OnPreDrawListener dialogPreDrawListener =
                 getOnPreDrawListener(fd, renderNode);
@@ -196,19 +195,19 @@ public class DialogWrapperLayout extends ConstraintLayout {
             }
         });
 
-        View referenceView = getChildAt(0);
-        fd.getDialogConstraintsCommand().execute(this, referenceView, fd.getDialogView());
+        View focusView = getChildAt(0);
+        fd.getDialogConstraintsCommand().execute(this, focusView, fd.getDialogView());
     }
 
     private ViewTreeObserver.OnPreDrawListener getOnPreDrawListener(FocusDialog fd, RenderNode renderNode) {
         ViewTreeObserver.OnPreDrawListener dialogPreDrawListener = new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
-                View referenceView = getChildAt(0);
+                View focusView = getChildAt(0);
 
                 if (fd.getPathViewPathGeneratorCommand() != null) {
 
-                    Path path = fd.getPathViewPathGeneratorCommand().generate(referenceView, fd.getDialogView());
+                    Path path = fd.getPathViewPathGeneratorCommand().generate(focusView, fd.getDialogView());
 
                     RenderNodeBehindPathView bridgeView = (RenderNodeBehindPathView) getChildAt(1);
 
@@ -366,7 +365,7 @@ public class DialogWrapperLayout extends ConstraintLayout {
 
     public static void constraintDialogToBottom(
             ConstraintLayout constraintLayout,
-            View referenceView,
+            View focusView,
             View dialogView,
             double dialogXMarginPx,
             double dialogYMarginPx,
@@ -378,14 +377,14 @@ public class DialogWrapperLayout extends ConstraintLayout {
         if (centerDialogOnMainAxis) {
             dialogCs.connect(dialogView.getId(), ConstraintSet.LEFT, constraintLayout.getId(), ConstraintSet.LEFT);
             dialogCs.connect(dialogView.getId(), ConstraintSet.RIGHT, constraintLayout.getId(), ConstraintSet.RIGHT);
-            dialogCs.connect(dialogView.getId(), ConstraintSet.TOP, referenceView.getId(), ConstraintSet.BOTTOM);
+            dialogCs.connect(dialogView.getId(), ConstraintSet.TOP, focusView.getId(), ConstraintSet.BOTTOM);
             dialogCs.connect(dialogView.getId(), ConstraintSet.BOTTOM, constraintLayout.getId(), ConstraintSet.BOTTOM);
             dialogCs.setVerticalBias(dialogView.getId(), 0f);
 
             dialogCs.applyTo(constraintLayout);
         } else {
-            dialogCs.connect(dialogView.getId(), ConstraintSet.LEFT, referenceView.getId(), ConstraintSet.LEFT);
-            dialogCs.connect(dialogView.getId(), ConstraintSet.TOP, referenceView.getId(), ConstraintSet.BOTTOM);
+            dialogCs.connect(dialogView.getId(), ConstraintSet.LEFT, focusView.getId(), ConstraintSet.LEFT);
+            dialogCs.connect(dialogView.getId(), ConstraintSet.TOP, focusView.getId(), ConstraintSet.BOTTOM);
             dialogCs.connect(dialogView.getId(), ConstraintSet.BOTTOM, constraintLayout.getId(), ConstraintSet.BOTTOM);
             dialogCs.setVerticalBias(dialogView.getId(), 0f);
 
@@ -398,7 +397,7 @@ public class DialogWrapperLayout extends ConstraintLayout {
 
     public static void constraintDialogToTop(
             ConstraintLayout constraintLayout,
-            View referenceView,
+            View focusView,
             View dialogView,
             double dialogXMarginPx,
             double dialogYMarginPx,
@@ -410,14 +409,14 @@ public class DialogWrapperLayout extends ConstraintLayout {
         if (centerDialogOnMainAxis) {
             dialogCs.connect(dialogView.getId(), ConstraintSet.LEFT, constraintLayout.getId(), ConstraintSet.LEFT);
             dialogCs.connect(dialogView.getId(), ConstraintSet.RIGHT, constraintLayout.getId(), ConstraintSet.RIGHT);
-            dialogCs.connect(dialogView.getId(), ConstraintSet.BOTTOM, referenceView.getId(), ConstraintSet.TOP);
+            dialogCs.connect(dialogView.getId(), ConstraintSet.BOTTOM, focusView.getId(), ConstraintSet.TOP);
             dialogCs.connect(dialogView.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP);
             dialogCs.setVerticalBias(dialogView.getId(), 1f);
 
             dialogCs.applyTo(constraintLayout);
         } else {
-            dialogCs.connect(dialogView.getId(), ConstraintSet.LEFT, referenceView.getId(), ConstraintSet.LEFT);
-            dialogCs.connect(dialogView.getId(), ConstraintSet.BOTTOM, referenceView.getId(), ConstraintSet.TOP);
+            dialogCs.connect(dialogView.getId(), ConstraintSet.LEFT, focusView.getId(), ConstraintSet.LEFT);
+            dialogCs.connect(dialogView.getId(), ConstraintSet.BOTTOM, focusView.getId(), ConstraintSet.TOP);
             dialogCs.connect(dialogView.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP);
             dialogCs.setVerticalBias(dialogView.getId(), 1f);
 
@@ -430,7 +429,7 @@ public class DialogWrapperLayout extends ConstraintLayout {
 
     public static void constraintDialogToStart(
             ConstraintLayout constraintLayout,
-            View referenceView,
+            View focusView,
             View dialogView,
             double dialogXMarginPx,
             double dialogYMarginPx,
@@ -443,15 +442,15 @@ public class DialogWrapperLayout extends ConstraintLayout {
             dialogCs.connect(dialogView.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP);
             dialogCs.connect(dialogView.getId(), ConstraintSet.BOTTOM, constraintLayout.getId(), ConstraintSet.BOTTOM);
             dialogCs.setHorizontalBias(dialogView.getId(), 1f);
-            dialogCs.connect(dialogView.getId(), ConstraintSet.RIGHT, referenceView.getId(), ConstraintSet.LEFT);
+            dialogCs.connect(dialogView.getId(), ConstraintSet.RIGHT, focusView.getId(), ConstraintSet.LEFT);
             dialogCs.connect(dialogView.getId(), ConstraintSet.LEFT, constraintLayout.getId(), ConstraintSet.LEFT);
 
             dialogCs.applyTo(constraintLayout);
         } else {
-            dialogCs.connect(dialogView.getId(), ConstraintSet.TOP, referenceView.getId(), ConstraintSet.TOP);
+            dialogCs.connect(dialogView.getId(), ConstraintSet.TOP, focusView.getId(), ConstraintSet.TOP);
             dialogCs.setVerticalBias(dialogView.getId(), 1f);
             dialogCs.connect(dialogView.getId(), ConstraintSet.LEFT, constraintLayout.getId(), ConstraintSet.LEFT);
-            dialogCs.connect(dialogView.getId(), ConstraintSet.RIGHT, referenceView.getId(), ConstraintSet.LEFT);
+            dialogCs.connect(dialogView.getId(), ConstraintSet.RIGHT, focusView.getId(), ConstraintSet.LEFT);
 
             dialogCs.applyTo(constraintLayout);
         }
@@ -462,7 +461,7 @@ public class DialogWrapperLayout extends ConstraintLayout {
 
     public static void constraintDialogToEnd(
             ConstraintLayout constraintLayout,
-            View referenceView,
+            View focusView,
             View dialogView,
             double dialogXMarginPx,
             double dialogYMarginPx,
@@ -475,14 +474,14 @@ public class DialogWrapperLayout extends ConstraintLayout {
             dialogCs.connect(dialogView.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP);
             dialogCs.connect(dialogView.getId(), ConstraintSet.BOTTOM, constraintLayout.getId(), ConstraintSet.BOTTOM);
             dialogCs.setHorizontalBias(dialogView.getId(), 0f);
-            dialogCs.connect(dialogView.getId(), ConstraintSet.LEFT, referenceView.getId(), ConstraintSet.RIGHT);
+            dialogCs.connect(dialogView.getId(), ConstraintSet.LEFT, focusView.getId(), ConstraintSet.RIGHT);
             dialogCs.connect(dialogView.getId(), ConstraintSet.RIGHT, constraintLayout.getId(), ConstraintSet.RIGHT);
 
             dialogCs.applyTo(constraintLayout);
         } else {
-            dialogCs.connect(dialogView.getId(), ConstraintSet.TOP, referenceView.getId(), ConstraintSet.TOP);
+            dialogCs.connect(dialogView.getId(), ConstraintSet.TOP, focusView.getId(), ConstraintSet.TOP);
             dialogCs.setHorizontalBias(dialogView.getId(), 0f);
-            dialogCs.connect(dialogView.getId(), ConstraintSet.LEFT, referenceView.getId(), ConstraintSet.RIGHT);
+            dialogCs.connect(dialogView.getId(), ConstraintSet.LEFT, focusView.getId(), ConstraintSet.RIGHT);
             dialogCs.connect(dialogView.getId(), ConstraintSet.RIGHT, constraintLayout.getId(), ConstraintSet.RIGHT);
 
             dialogCs.applyTo(constraintLayout);
@@ -493,7 +492,7 @@ public class DialogWrapperLayout extends ConstraintLayout {
     }
 
     public static Path drawPathToBottomDialog(
-            View referenceView,
+            View focusView,
             View dialogView,
             double originOffsetPercent,
             double destinationOffsetPercent,
@@ -501,24 +500,24 @@ public class DialogWrapperLayout extends ConstraintLayout {
     ) {
         int[] parentLocation = new int[2];
 
-        ViewParent parent = referenceView.getParent();
+        ViewParent parent = focusView.getParent();
 
         if (parent instanceof View) {
             ((View)parent).getLocationOnScreen(parentLocation);
         }
 
-        int[] referenceViewLocation = new int[2];
-        referenceView.getLocationOnScreen(referenceViewLocation);
-        referenceViewLocation[0] -= parentLocation[0];
-        referenceViewLocation[1] -= parentLocation[1];
+        int[] focusViewLocation = new int[2];
+        focusView.getLocationOnScreen(focusViewLocation);
+        focusViewLocation[0] -= parentLocation[0];
+        focusViewLocation[1] -= parentLocation[1];
 
         int[] dialogViewLocation = new int[2];
         dialogView.getLocationOnScreen(dialogViewLocation);
         dialogViewLocation[0] -= parentLocation[0];
         dialogViewLocation[1] -= parentLocation[1];
 
-        double startX = referenceViewLocation[0] + referenceView.getWidth() * originOffsetPercent;
-        int startY = referenceViewLocation[1] + referenceView.getHeight();
+        double startX = focusViewLocation[0] + focusView.getWidth() * originOffsetPercent;
+        int startY = focusViewLocation[1] + focusView.getHeight();
 
         Path path = new Path();
 
@@ -538,7 +537,7 @@ public class DialogWrapperLayout extends ConstraintLayout {
     }
 
     public static Path drawPathToTopDialog(
-            View referenceView,
+            View focusView,
             View dialogView,
             double originOffsetPercent,
             double destinationOffsetPercent,
@@ -546,24 +545,24 @@ public class DialogWrapperLayout extends ConstraintLayout {
     ) {
         int[] parentLocation = new int[2];
 
-        ViewParent parent = referenceView.getParent();
+        ViewParent parent = focusView.getParent();
 
         if (parent instanceof View) {
             ((View)parent).getLocationOnScreen(parentLocation);
         }
 
-        int[] referenceViewLocation = new int[2];
-        referenceView.getLocationOnScreen(referenceViewLocation);
-        referenceViewLocation[0] -= parentLocation[0];
-        referenceViewLocation[1] -= parentLocation[1];
+        int[] focusViewLocation = new int[2];
+        focusView.getLocationOnScreen(focusViewLocation);
+        focusViewLocation[0] -= parentLocation[0];
+        focusViewLocation[1] -= parentLocation[1];
 
         int[] dialogViewLocation = new int[2];
         dialogView.getLocationOnScreen(dialogViewLocation);
         dialogViewLocation[0] -= parentLocation[0];
         dialogViewLocation[1] -= parentLocation[1];
 
-        double startX = referenceViewLocation[0] + referenceView.getWidth() * originOffsetPercent;
-        int startY = referenceViewLocation[1];
+        double startX = focusViewLocation[0] + focusView.getWidth() * originOffsetPercent;
+        int startY = focusViewLocation[1];
 
         Path path = new Path();
 
@@ -583,7 +582,7 @@ public class DialogWrapperLayout extends ConstraintLayout {
     }
 
     public static Path drawPathToStartDialog(
-            View referenceView,
+            View focusView,
             View dialogView,
             double originOffsetPercent,
             double destinationOffsetPercent,
@@ -591,24 +590,24 @@ public class DialogWrapperLayout extends ConstraintLayout {
     ) {
         int[] parentLocation = new int[2];
 
-        ViewParent parent = referenceView.getParent();
+        ViewParent parent = focusView.getParent();
 
         if (parent instanceof View) {
             ((View)parent).getLocationOnScreen(parentLocation);
         }
 
-        int[] referenceViewLocation = new int[2];
-        referenceView.getLocationOnScreen(referenceViewLocation);
-        referenceViewLocation[0] -= parentLocation[0];
-        referenceViewLocation[1] -= parentLocation[1];
+        int[] focusViewLocation = new int[2];
+        focusView.getLocationOnScreen(focusViewLocation);
+        focusViewLocation[0] -= parentLocation[0];
+        focusViewLocation[1] -= parentLocation[1];
 
         int[] dialogViewLocation = new int[2];
         dialogView.getLocationOnScreen(dialogViewLocation);
         dialogViewLocation[0] -= parentLocation[0];
         dialogViewLocation[1] -= parentLocation[1];
 
-        int startX = referenceViewLocation[0];
-        double startY = referenceViewLocation[1] + referenceView.getHeight() * originOffsetPercent;
+        int startX = focusViewLocation[0];
+        double startY = focusViewLocation[1] + focusView.getHeight() * originOffsetPercent;
 
         Path path = new Path();
 
@@ -628,7 +627,7 @@ public class DialogWrapperLayout extends ConstraintLayout {
     }
 
     public static Path drawPathToEndDialog(
-            View referenceView,
+            View focusView,
             View dialogView,
             double originOffsetPercent,
             double destinationOffsetPercent,
@@ -636,24 +635,24 @@ public class DialogWrapperLayout extends ConstraintLayout {
     ) {
         int[] parentLocation = new int[2];
 
-        ViewParent parent = referenceView.getParent();
+        ViewParent parent = focusView.getParent();
 
         if (parent instanceof View) {
             ((View)parent).getLocationOnScreen(parentLocation);
         }
 
-        int[] referenceViewLocation = new int[2];
-        referenceView.getLocationOnScreen(referenceViewLocation);
-        referenceViewLocation[0] -= parentLocation[0];
-        referenceViewLocation[1] -= parentLocation[1];
+        int[] focusViewLocation = new int[2];
+        focusView.getLocationOnScreen(focusViewLocation);
+        focusViewLocation[0] -= parentLocation[0];
+        focusViewLocation[1] -= parentLocation[1];
 
         int[] dialogViewLocation = new int[2];
         dialogView.getLocationOnScreen(dialogViewLocation);
         dialogViewLocation[0] -= parentLocation[0];
         dialogViewLocation[1] -= parentLocation[1];
 
-        int startX = referenceViewLocation[0] + referenceView.getWidth();
-        double startY = referenceViewLocation[1] + referenceView.getHeight() * originOffsetPercent;
+        int startX = focusViewLocation[0] + focusView.getWidth();
+        double startY = focusViewLocation[1] + focusView.getHeight() * originOffsetPercent;
 
         Path path = new Path();
 
