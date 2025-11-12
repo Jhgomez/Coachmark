@@ -39,6 +39,27 @@ public class TutorialDisplayLayout extends FrameLayout {
     }
 
     public void renderFocusAreaWithDialog(FocusArea focusArea, FocusDialog focusDialog) {
+        int[] location = new int[2];
+        focusArea.getView().getLocationOnScreen(location);
+
+        int[] selfLocation = new int[2];
+        getLocationOnScreen(selfLocation);
+
+        location[0] -= selfLocation[0];
+        location[1] -= selfLocation[1];
+
+        dialogWrapperLayout = new DialogWrapperLayout(getContext());
+
+        int possibleWidth = getResources().getDisplayMetrics().widthPixels - selfLocation[0];
+        int possibleHeight = getResources().getDisplayMetrics().heightPixels - selfLocation[1];
+
+        popup = new PopupWindow(
+                dialogWrapperLayout,
+                Math.min(getWidth(), possibleWidth),
+                Math.min(getHeight(), possibleHeight),
+                true // closes on outside touch if true
+        );
+
         // Record a copy of child(0) into contentCopy (API 31+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && contentCopy != null) {
             contentCopy.setPosition(0, 0, getWidth(), getHeight());
@@ -50,27 +71,7 @@ public class TutorialDisplayLayout extends FrameLayout {
             contentCopy.endRecording();
         }
 
-        int[] location = new int[2];
-        focusArea.getView().getLocationOnScreen(location);
-
-        int[] selfLocation = new int[2];
-        getLocationOnScreen(selfLocation);
-
-        location[0] -= selfLocation[0];
-        location[1] -= selfLocation[1];
-
-        dialogWrapperLayout = new DialogWrapperLayout(getContext());
         dialogWrapperLayout.configuredDialog(focusArea, focusDialog, contentCopy, location);
-
-        int possibleWidth = getResources().getDisplayMetrics().widthPixels - selfLocation[0];
-        int possibleHeight = getResources().getDisplayMetrics().heightPixels - selfLocation[1];
-
-        popup = new PopupWindow(
-                dialogWrapperLayout,
-                Math.min(getWidth(), possibleWidth),
-                Math.min(getHeight(), possibleHeight),
-                true // closes on outside touch if true
-        );
 
         // Dismiss automatically if this view detaches (e.g., rotation)
         this.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
