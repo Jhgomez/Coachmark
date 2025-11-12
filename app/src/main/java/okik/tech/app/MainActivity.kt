@@ -1,6 +1,5 @@
 package okik.tech.app
 
-import android.app.Activity
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RenderEffect
@@ -20,7 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import okik.tech.app.databinding.ActivityMainBinding
 import okik.tech.app.databinding.DialogContentBinding
 import okik.tech.coachmark.BackgroundEffectRendererLayout
-import okik.tech.coachmark.DialogWrapperLayout
+import okik.tech.coachmark.CoachMarkOverlay
 import okik.tech.coachmark.FocusArea
 import okik.tech.coachmark.ViewUtils.dpToPx
 
@@ -53,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         binding.buttonFirst.setOnClickListener {
 //            if (count == 0) {
 //                count += 1
-            val aView = binding.recycler.layoutManager?.findViewByPosition(1)
+            val aView = binding.recycler.layoutManager?.findViewByPosition(3)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
 
             }
@@ -95,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                     .generateMatchingFocusDialog()
                     .setDialogView(dialog)
                     .setDialogConstraintsCommand { cl, focusView, dialog ->
-                        DialogWrapperLayout.constraintDialogToBottom(
+                        CoachMarkOverlay.constraintDialogToBottom(
                             cl,
                             focusView,
                             dialog,
@@ -105,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                         )
                     }
                     .setPathViewPathGeneratorCommand { fv, dialog ->
-                        DialogWrapperLayout.drawPathToBottomDialog(
+                        CoachMarkOverlay.drawPathToBottomDialog(
                             fv,
                             dialog,
                             0.1,

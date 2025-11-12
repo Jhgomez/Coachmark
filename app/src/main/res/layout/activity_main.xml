@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <okik.tech.coachmark.TutorialDisplayLayout
+    <okik.tech.coachmark.CoachmarkContainer
         android:id="@+id/tutorial"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -107,6 +107,6 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</okik.tech.coachmark.TutorialDisplayLayout>
+</okik.tech.coachmark.CoachmarkContainer>
 
 </FrameLayout>
