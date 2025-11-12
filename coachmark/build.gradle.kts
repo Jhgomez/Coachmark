@@ -81,7 +81,7 @@ mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
 
-    coordinates("okik.tech", "coachmark", "1.0")
+    coordinates("io.github.jhgomez", "coachmark", "1.0")
 
     pom {
         name = "coachmark"
@@ -99,16 +99,16 @@ mavenPublishing {
 
         developers {
             developer {
-                id.set("username")
-                name.set("User Name")
-                url.set("https://github.com/username/")
+                id = "jhgomez"
+                name = "Juan Gomez"
+                url = "https://github.com/jhgomez/"
             }
         }
 
         scm {
             url = "https://github.com/jhgomez/coachmark/"
-            connection = "scm:git:git://github.com/jhgomez/repo.git"
-            developerConnection = "scm:git:ssh://git@github.com/username/mylibrary.git"
+            connection = "scm:git:git://github.com/Jhgomez/Coachmark"
+            developerConnection = "scm:git:ssh://git@github.com/Jhgomez/Coachmark"
         }
     }
 
