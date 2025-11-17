@@ -46,13 +46,10 @@ public class CoachmarkContainer extends FrameLayout {
 
         dialogWrapperLayout = new CoachMarkOverlay(getContext());
 
-        int possibleWidth = getResources().getDisplayMetrics().widthPixels - selfLocation[0];
-        int possibleHeight = getResources().getDisplayMetrics().heightPixels - selfLocation[1];
-
         popup = new PopupWindow(
                 dialogWrapperLayout,
-                Math.min(getWidth(), possibleWidth),
-                Math.min(getHeight(), possibleHeight),
+                getWidth(),
+                getHeight(),
                 true // closes on outside touch if true
         );
 
