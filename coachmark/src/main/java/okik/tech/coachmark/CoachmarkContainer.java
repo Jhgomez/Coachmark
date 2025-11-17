@@ -7,11 +7,13 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
 
 public class CoachmarkContainer extends FrameLayout {
     @Nullable
@@ -19,7 +21,7 @@ public class CoachmarkContainer extends FrameLayout {
     @Nullable
     private final RenderNode contentCopy;
     @Nullable
-    private PopupWindow popup = null;
+    private CoachMarkOverlayWrapperDialog coachmarWrapper = null;
 
     public CoachmarkContainer(Context context) {
         this(context, null);
@@ -34,7 +36,11 @@ public class CoachmarkContainer extends FrameLayout {
         }
     }
 
-    public void renderFocusAreaWithDialog(FocusArea focusArea, FocusDialog focusDialog) {
+    public void renderFocusAreaWithDialog(
+            FocusArea focusArea,
+            FocusDialog focusDialog,
+            FragmentManager fm
+    ) {
         int[] location = new int[2];
         focusArea.getView().getLocationOnScreen(location);
 
@@ -45,20 +51,19 @@ public class CoachmarkContainer extends FrameLayout {
         location[1] -= selfLocation[1];
 
         dialogWrapperLayout = new CoachMarkOverlay(getContext());
+        dialogWrapperLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         int possibleWidth = getResources().getDisplayMetrics().widthPixels - selfLocation[0];
         int possibleHeight = getResources().getDisplayMetrics().heightPixels - selfLocation[1];
 
-        popup = new PopupWindow(
-                dialogWrapperLayout,
-                Math.min(getWidth(), possibleWidth),
-                Math.min(getHeight(), possibleHeight),
-                true // closes on outside touch if true
-        );
+        coachmarWrapper = new CoachMarkOverlayWrapperDialog();
+        coachmarWrapper.configureWrapper(selfLocation, getWidth(), getHeight(), dialogWrapperLayout);
+
+        coachmarWrapper.show(fm, "cc_cw");
 
         // Record a copy of child(0) into contentCopy (API 31+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && contentCopy != null) {
-            contentCopy.setPosition(0, 0, getWidth(), getHeight());
+            contentCopy.setPosition(0, 0, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
 
             // this custom layout should only have one child and we record its content
             // so we can make a copy of the area we want to focus on
@@ -74,18 +79,14 @@ public class CoachmarkContainer extends FrameLayout {
             @Override public void onViewAttachedToWindow(@NonNull View v) {}
             @Override public void onViewDetachedFromWindow(@NonNull View v) { hideTutorialComponents(); }
         });
-
-        popup.setOnDismissListener(() -> popup = null);
-
-        popup.showAtLocation(this, Gravity.NO_GRAVITY, selfLocation[0], selfLocation[1]);
     }
 
     public void hideTutorialComponents() {
-        if (popup != null && popup.isShowing()) {
-            popup.dismiss();
+        if (coachmarWrapper != null) {
+            coachmarWrapper.dismiss();
         }
 
-        popup = null;
+        coachmarWrapper = null;
     }
 
     @Override
