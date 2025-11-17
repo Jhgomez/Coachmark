@@ -81,7 +81,7 @@ mavenPublishing {
     publishToMavenCentral(automaticRelease = true)
     signAllPublications()
 
-    coordinates("io.github.jhgomez", "coachmark", "1.0")
+    coordinates("io.github.jhgomez", "coachmark", "1.0.1")
 
     pom {
         name = "coachmark"
