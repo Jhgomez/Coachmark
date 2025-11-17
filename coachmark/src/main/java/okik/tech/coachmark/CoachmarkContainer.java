@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.RenderNode;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -53,6 +54,7 @@ public class CoachmarkContainer extends FrameLayout {
                 true // closes on outside touch if true
         );
 
+        popup.showAtLocation(this, Gravity.NO_GRAVITY, selfLocation[0], selfLocation[1]);
         // Record a copy of child(0) into contentCopy (API 31+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && contentCopy != null) {
             contentCopy.setPosition(0, 0, getWidth(), getHeight());
@@ -66,15 +68,29 @@ public class CoachmarkContainer extends FrameLayout {
 
         dialogWrapperLayout.configuredDialog(focusArea, focusDialog, contentCopy, location);
 
+        Overlay overlay = new Overlay(getContext());
+        overlay.layout(0, 0, getWidth(), getHeight());
+        overlay.configureOverlay(
+                contentCopy,
+                focusArea.getOuterAreaEffect(),
+                focusArea.getOverlayColor(),
+                focusArea.getOverlayAlpha()
+        );
+        getOverlay().add(overlay);
+
         // Dismiss automatically if this view detaches (e.g., rotation)
-        this.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+        View.OnAttachStateChangeListener oascl = new View.OnAttachStateChangeListener() {
             @Override public void onViewAttachedToWindow(@NonNull View v) {}
             @Override public void onViewDetachedFromWindow(@NonNull View v) { hideTutorialComponents(); }
+        };
+
+        this.addOnAttachStateChangeListener(oascl);
+
+        popup.setOnDismissListener(() -> {
+            popup = null;
+            getOverlay().remove(overlay);
+            removeOnAttachStateChangeListener(oascl);
         });
-
-        popup.setOnDismissListener(() -> popup = null);
-
-        popup.showAtLocation(this, Gravity.NO_GRAVITY, selfLocation[0], selfLocation[1]);
     }
 
     public void hideTutorialComponents() {
