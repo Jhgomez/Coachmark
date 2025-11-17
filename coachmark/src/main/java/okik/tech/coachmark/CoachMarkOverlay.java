@@ -234,6 +234,24 @@ public class CoachMarkOverlay extends ConstraintLayout {
     }
 
     @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        // this partially solves the issue that the dialog(popupWindow) we are using to display the
+        // coachmark doesn't draw on the whole screen when edge to edge is enable, we will try to
+        // fix this by using a fragment dialog
+
+        // Parent's location on screen is now valid
+        int[] screen = new int[2];
+        getLocationOnScreen(screen); // screen[0]=x, screen[1]=y
+
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+
+            child.setTranslationX(-screen[0]);
+        }
+    }
+
+    @Override
     public void draw(@NonNull Canvas canvas) {
         if (focusArea != null) {
             FocusArea fa = focusArea;
@@ -244,19 +262,6 @@ public class CoachMarkOverlay extends ConstraintLayout {
             }
 
             if (contentCopy != null) {
-                // Create a version of the original view that lives in "contentCopy" and apply the effect
-                if (contentWithEffect != null) {
-                    contentWithEffect.setRenderEffect(fa.getOuterAreaEffect());
-                    contentWithEffect.setPosition(0, 0, getWidth(), getHeight());
-
-                    RecordingCanvas contentWithEffectRecordingCanvas = contentWithEffect.beginRecording();
-                    contentWithEffectRecordingCanvas.drawRenderNode(contentCopy);
-                    contentWithEffectRecordingCanvas.drawColor(overlayColor);
-                    contentWithEffect.endRecording();
-
-                    // Draw the applied effect to content on this layout's canvas
-                    canvas.drawRenderNode(contentWithEffect);
-                }
 
                 // Make a copy of original content but only of the specified view and requested surrounding area
                 if (emphasisViewLoc.length == 2) {
@@ -288,22 +293,24 @@ public class CoachMarkOverlay extends ConstraintLayout {
     }
 
     public void updateBackground(RenderNode renderNode) {
-        BackgroundEffectRendererLayout focusAreaView =
-                (BackgroundEffectRendererLayout) getChildAt(0);
-        focusAreaView.setBackgroundRenderNode(renderNode);
-        focusAreaView.invalidate();
+        if (getChildCount() == 3) {
+            BackgroundEffectRendererLayout focusAreaView =
+                    (BackgroundEffectRendererLayout) getChildAt(0);
+            focusAreaView.setBackgroundRenderNode(renderNode);
+            focusAreaView.invalidate();
 
-        RenderNodeBehindPathView bridgeView =
-                (RenderNodeBehindPathView) getChildAt(1);
-        bridgeView.setBackgroundViewRenderNode(renderNode);
-        bridgeView.invalidate();
+            RenderNodeBehindPathView bridgeView =
+                    (RenderNodeBehindPathView) getChildAt(1);
+            bridgeView.setBackgroundViewRenderNode(renderNode);
+            bridgeView.invalidate();
 
-        BackgroundEffectRendererLayout dialogView =
-                (BackgroundEffectRendererLayout) getChildAt(2);
-        dialogView.setBackgroundRenderNode(renderNode);
-        dialogView.invalidate();
+            BackgroundEffectRendererLayout dialogView =
+                    (BackgroundEffectRendererLayout) getChildAt(2);
+            dialogView.setBackgroundRenderNode(renderNode);
+            dialogView.invalidate();
 
-        invalidate();
+            invalidate();
+        }
     }
 
     @Override
