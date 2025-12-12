@@ -35,7 +35,11 @@ public class CoachmarkContainer extends FrameLayout {
         }
     }
 
-    public void renderFocusAreaWithDialog(FocusArea focusArea, FocusDialog focusDialog) {
+    public void renderFocusAreaWithDialog(
+            FocusArea focusArea,
+            FocusDialog focusDialog,
+            Runnable onDialogDismiss
+    ) {
         int[] location = new int[2];
         focusArea.getView().getLocationOnScreen(location);
 
@@ -89,7 +93,9 @@ public class CoachmarkContainer extends FrameLayout {
         popup.setOnDismissListener(() -> {
             popup = null;
             getOverlay().remove(overlay);
+            dialogWrapperLayout = null;
             removeOnAttachStateChangeListener(oascl);
+            onDialogDismiss.run();
         });
     }
 
@@ -97,8 +103,6 @@ public class CoachmarkContainer extends FrameLayout {
         if (popup != null && popup.isShowing()) {
             popup.dismiss();
         }
-
-        popup = null;
     }
 
     @Override
